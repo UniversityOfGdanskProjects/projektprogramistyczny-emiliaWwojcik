@@ -34,9 +34,37 @@ export default function SignIn() {
             your first order !
           </span>
         </h1>
-        <div className="register-box">
-          <button>Create Account</button>
-        </div>
+        <form>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            placeholder="Name"
+            required
+          />
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="E-mail"
+            required
+          />
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Password"
+            required
+          ></input>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Repeat password"
+            required
+          ></input>
+          <button type="submit">Create Account</button>
+        </form>
       </div>
     </div>
   );

@@ -14,7 +14,10 @@ export default function Navbar() {
             </h1>
           </li>
           <li>
-            <a href="./SignIn">Sign In / Register</a>
+            <div className="right">
+              <a href="./SignIn">Sign In / Register</a>
+              <a href="#">KOSZYK</a>
+            </div>
           </li>
         </ul>
       </div>

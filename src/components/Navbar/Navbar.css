@@ -31,6 +31,15 @@
   letter-spacing: 5px;
 }
 
+.Main .right a {
+  margin-left: 20px;
+}
+
+.Main .right a:last-of-type {
+  color: white;
+  letter-spacing: 4px;
+}
+
 .Nav {
   background-color: #e52b50;
   color: lightpink;
