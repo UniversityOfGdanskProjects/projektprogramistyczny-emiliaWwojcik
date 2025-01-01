@@ -1,17 +1,17 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import "./App.css";
-import Navbar from "./components/Navbar/Navbar";
-import Display from "./components/Display/Display";
-import Footer from "./components/Footer/Footer";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import SignIn from "./SignIn";
+import Home from "./Home.jsx";
 
 export default function App() {
   return (
-    <div>
-      <Navbar />
-      <Display />
-      {/* <Footer /> */}
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/SignIn" element={<SignIn />} />
+      </Routes>
+    </Router>
   );
 }

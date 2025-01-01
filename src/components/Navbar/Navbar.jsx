@@ -10,11 +10,11 @@ export default function Navbar() {
           <li className="company">
             <img src={Logo} alt="logo" width="60px" />
             <h1>
-              <a href="#">Berry</a>
+              <a href="./">Berry</a>
             </h1>
           </li>
           <li>
-            <a href="#">Sign In / Register</a>
+            <a href="./SignIn">Sign In / Register</a>
           </li>
         </ul>
       </div>

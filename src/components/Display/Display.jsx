@@ -43,7 +43,7 @@ export default function Display() {
             className="carousel-control-prev-icon"
             aria-hidden="true"
           ></span>
-          <span className="sr-only">Previous</span>
+          <span className="sr-only"></span>
         </button>
         <button
           className="carousel-control-next"
@@ -55,7 +55,7 @@ export default function Display() {
             className="carousel-control-next-icon"
             aria-hidden="true"
           ></span>
-          <span className="sr-only">Next</span>
+          <span className="sr-only"></span>
         </button>
       </div>
     </div>

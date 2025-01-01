@@ -1,0 +1,60 @@
+.sign h1 {
+  font-weight: lighter;
+  letter-spacing: 4px;
+  margin: 40px;
+  text-align: center;
+}
+
+.sign span {
+  color: #e52b50;
+  font-weight: normal;
+}
+
+.sign form {
+  display: grid;
+  gap: 40px;
+  width: 100%;
+}
+
+.sign form * {
+  justify-self: center;
+  padding: 15px 20px;
+  width: 30%;
+}
+
+.sign input:focus {
+  outline-color: lightpink;
+  outline-width: 10px;
+}
+
+.sign button {
+  background-color: lightpink;
+  border: none;
+  color: #e52b50;
+  font-size: 26px;
+  letter-spacing: 6px;
+}
+
+.sign button:hover {
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.sign .register-box {
+  display: grid;
+  width: 100%;
+}
+
+.sign .register-box button {
+  background-color: lightpink;
+  border: 4px solid #e52b50;
+  color: #e52b50;
+  font-size: 26px;
+  justify-self: center;
+  letter-spacing: 6px;
+  margin: 20px;
+  margin-top: 0;
+  padding: 15px 20px;
+  text-align: center;
+  width: 30%;
+}
