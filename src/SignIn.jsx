@@ -43,6 +43,13 @@ export default function SignIn() {
             required
           />
           <input
+            type="text"
+            id="surname"
+            name="surnname"
+            placeholder="Surname"
+            required
+          />
+          <input
             type="email"
             id="email"
             name="email"

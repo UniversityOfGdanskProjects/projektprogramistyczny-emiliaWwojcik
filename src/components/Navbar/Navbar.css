@@ -23,7 +23,12 @@
   grid-template-columns: auto auto;
 }
 
+.Main .company img {
+  width: 100px;
+}
+
 .Main .company h1 {
+  align-self: center;
   font-family: cursive;
   font-size: 3rem;
   font-style: italic;

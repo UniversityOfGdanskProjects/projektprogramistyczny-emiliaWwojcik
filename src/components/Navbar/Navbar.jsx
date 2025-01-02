@@ -8,7 +8,7 @@ export default function Navbar() {
       <div className="Main">
         <ul>
           <li className="company">
-            <img src={Logo} alt="logo" width="60px" />
+            <img src={Logo} alt="logo" />
             <h1>
               <a href="./">Berry</a>
             </h1>
@@ -16,7 +16,7 @@ export default function Navbar() {
           <li>
             <div className="right">
               <a href="./SignIn">Sign In / Register</a>
-              <a href="#">KOSZYK</a>
+              <a href="#">Shopping bag</a>
             </div>
           </li>
         </ul>
@@ -24,19 +24,13 @@ export default function Navbar() {
       <div className="Nav">
         <ul>
           <li>
-            <a href="#">Just In</a>
+            <a href="./Clothes">Clothes</a>
           </li>
           <li>
-            <a href="#">Designer</a>
+            <a href="#">Shoes</a>
           </li>
           <li>
-            <a href="#">Dresses</a>
-          </li>
-          <li>
-            <a href="#">Bags</a>
-          </li>
-          <li>
-            <a href="#">Sale</a>
+            <a href="#">Jewelery</a>
           </li>
           <li>
             <form>
