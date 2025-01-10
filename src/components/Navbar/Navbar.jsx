@@ -27,10 +27,10 @@ export default function Navbar() {
             <a href="./Clothes">Clothes</a>
           </li>
           <li>
-            <a href="#">Shoes</a>
+            <a href="./Jewelery">Jewelery</a>
           </li>
           <li>
-            <a href="#">Jewelery</a>
+            <a href="#">Bags</a>
           </li>
           <li>
             <form>
