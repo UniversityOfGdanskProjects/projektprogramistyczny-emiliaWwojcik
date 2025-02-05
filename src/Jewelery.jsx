@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from "react";
-import Navbar from "./components/Navbar/Navbar";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Navbar from "./components/Navbar/Navbar";
+import { useNavigate } from "react-router-dom";
 import "./Jewelery.css";
 import cart from "./assets/basket.png";
 
 export default function Jewelery() {
-  const [clothing, setJewelery] = useState([]);
+  const [jewelery, setJewelery] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchJewelery = async () => {
@@ -17,13 +19,16 @@ export default function Jewelery() {
         setJewelery(response.data);
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching jewelery:", error);
         setLoading(false);
       }
     };
 
     fetchJewelery();
   }, []);
+
+  const handleProductClick = (productId) => {
+    navigate(`/product/${productId}`);
+  };
 
   if (loading) {
     return (
@@ -38,9 +43,13 @@ export default function Jewelery() {
     <div className="jewelery">
       <Navbar />
       <h1 id="jewelery">Jewelery</h1>
-      <div className="box">
-        {clothing.map((item) => (
-          <div key={item.id} className="item">
+      <div className="box jewelery-container">
+        {jewelery.map((item) => (
+          <div
+            key={item.id}
+            className="item jewelery-item"
+            onClick={() => handleProductClick(item.id)}
+          >
             <img id="pictures-jewelery" src={item.image} alt={item.title} />
             <h2 id="describtions-jewelery">{item.title}</h2>
             <p id="prices-jewelery">${item.price}</p>

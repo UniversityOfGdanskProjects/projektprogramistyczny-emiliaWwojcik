@@ -6,23 +6,21 @@ import Home from "./Home.jsx";
 import Clothes from "./Clothes.jsx";
 import Jewelery from "./Jewelery.jsx";
 import SignIn from "./SignIn";
-import AdminLayout from './components/admin/AdminLayout';
-import Dashboard from './components/admin/Dashboard';
+import AdminLayout from "./components/admin/AdminLayout";
+import Dashboard from "./components/admin/Dashboard";
+import ProductDetail from "./ProductDetail.jsx";
 
 export default function App() {
   return (
     <Router>
       <Routes>
-        {/* Public Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/clothes" element={<Clothes />} />
         <Route path="/jewelery" element={<Jewelery />} />
         <Route path="/signin" element={<SignIn />} />
-
-        {/* Admin Routes */}
+        <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Dashboard />} />
-          {/* Add more admin routes as needed */}
         </Route>
       </Routes>
     </Router>

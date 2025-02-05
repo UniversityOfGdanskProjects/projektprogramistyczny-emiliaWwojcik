@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import "./Navbar.css";
 import Logo from "../../assets/Logo.png";
 
@@ -10,13 +11,13 @@ export default function Navbar() {
           <li className="company">
             <img src={Logo} alt="logo" />
             <h1>
-              <a href="./">Berry</a>
+              <Link to="/">Berry</Link>
             </h1>
           </li>
           <li>
             <div className="right">
-              <a href="./SignIn">Sign In / Register</a>
-              <a href="#">Shopping bag</a>
+              <Link to="/SignIn">Sign In / Register</Link>
+              <Link to="#">Shopping bag</Link>
             </div>
           </li>
         </ul>
@@ -24,13 +25,13 @@ export default function Navbar() {
       <div className="Nav">
         <ul>
           <li>
-            <a href="./Clothes">Clothes</a>
+            <Link to="/Clothes">Clothes</Link>
           </li>
           <li>
-            <a href="./Jewelery">Jewelery</a>
+            <Link to="/Jewelery">Jewelery</Link>
           </li>
           <li>
-            <a href="#">Bags</a>
+            <Link to="#">Bags</Link>
           </li>
           <li>
             <form>

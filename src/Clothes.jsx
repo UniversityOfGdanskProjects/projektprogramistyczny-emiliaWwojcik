@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from "react";
-import Navbar from "./components/Navbar/Navbar";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Navbar from "./components/Navbar/Navbar";
+import { useNavigate } from "react-router-dom";
 import "./Clothes.css";
 import cart from "./assets/basket.png";
 
 export default function Clothes() {
   const [clothing, setClothing] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchClothing = async () => {
@@ -17,13 +19,16 @@ export default function Clothes() {
         setClothing(response.data);
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching clothing:", error);
         setLoading(false);
       }
     };
 
     fetchClothing();
   }, []);
+
+  const handleProductClick = (productId) => {
+    navigate(`/product/${productId}`);
+  };
 
   if (loading) {
     return (
@@ -38,9 +43,13 @@ export default function Clothes() {
     <div className="clothes">
       <Navbar />
       <h1 id="women-clothes">Women's clothes</h1>
-      <div className="box">
+      <div className="box clothing-container">
         {clothing.map((item) => (
-          <div key={item.id} className="item">
+          <div
+            key={item.id}
+            className="item clothing-item"
+            onClick={() => handleProductClick(item.id)}
+          >
             <img id="pictures-clothes" src={item.image} alt={item.title} />
             <h2 id="describtions-clothes">{item.title}</h2>
             <p id="prices-clothes">${item.price}</p>
