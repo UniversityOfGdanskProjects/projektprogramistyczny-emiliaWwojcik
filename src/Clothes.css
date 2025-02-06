@@ -28,9 +28,23 @@
   transform: scale(1.1);
 }
 
+.clothes .clothing-item {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+.clothes .clothing-item a {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
 .clothes #pictures-clothes {
   justify-self: center;
   height: 220px;
+  max-width: 100%;
   margin: 20px;
   margin-bottom: 40px;
   width: 150px;
@@ -63,4 +77,11 @@
 .clothes #cart {
   height: 30px;
   width: 30px;
+}
+
+.clothes .small-rating {
+  color: #e52b50;
+  letter-spacing: 1px;
+  margin: 16px;
+  justify-self: center;
 }

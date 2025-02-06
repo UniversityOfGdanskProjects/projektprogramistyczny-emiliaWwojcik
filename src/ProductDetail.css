@@ -180,7 +180,104 @@
   background-color: #f9f9f9;
   border: 1px solid #e52b50;
   border-radius: none;
+  color: black;
   font-weight: lighter;
   letter-spacing: 3px;
   padding: 20px;
+}
+
+.product-detail .review-section .review-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 10px;
+}
+
+.product-detail .review-section textarea {
+  border: 1px solid lightpink;
+  border-radius: 0;
+  letter-spacing: 3px;
+  padding: 15px 20px;
+}
+
+.product-detail .review-section textarea:focus {
+  border: 5px solid #e52b50;
+  outline: none;
+}
+
+.similar-products {
+  align-items: center;
+  background-color: #fff5f7;
+  display: flex;
+  flex-direction: column;
+  padding: 40px;
+  position: relative;
+  text-align: center;
+  width: 100%;
+}
+
+.similar-products h2 {
+  color: #e52b50;
+  font-size: 2rem;
+  font-weight: lighter;
+  letter-spacing: 4px;
+  margin-bottom: 30px;
+}
+
+.similar-products .carousel {
+  max-width: 800px;
+  width: 100%;
+}
+
+.similar-product-card {
+  background-color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  margin: 0 auto;
+  transition: all 0.3s ease;
+  width: 50%;
+}
+
+.similar-product-card:hover {
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+  transform: scale(1.05);
+}
+
+.similar-product-image {
+  height: 250px;
+  margin: 0 auto;
+  object-fit: contain;
+  width: 300px;
+}
+
+.similar-product-card p {
+  letter-spacing: 2px;
+  margin: 10px 0;
+  text-align: center;
+}
+
+.similar-product-card p.similar-price {
+  color: #e52b50;
+  font-size: 1.4rem;
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+  background-color: rgba(229, 43, 80, 0.5);
+  border-radius: 50%;
+  height: 50px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50px;
+}
+
+.carousel-control-prev {
+  left: 20px;
+}
+
+.carousel-control-next {
+  right: 20px;
 }

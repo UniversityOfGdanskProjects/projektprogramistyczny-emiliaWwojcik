@@ -9,6 +9,7 @@ import SignIn from "./SignIn";
 import AdminLayout from "./components/admin/AdminLayout";
 import Dashboard from "./components/admin/Dashboard";
 import ProductDetail from "./ProductDetail.jsx";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 export default function App() {
   return (

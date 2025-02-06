@@ -64,3 +64,10 @@
   height: 30px;
   width: 30px;
 }
+
+.jewelery .small-rating {
+  color: #e52b50;
+  letter-spacing: 1px;
+  margin: 16px;
+  justify-self: center;
+}

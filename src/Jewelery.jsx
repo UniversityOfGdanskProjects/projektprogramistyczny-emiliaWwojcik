@@ -1,34 +1,56 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
-import { useNavigate } from "react-router-dom";
-import "./Jewelery.css";
 import cart from "./assets/basket.png";
+import "./Jewelery.css";
 
 export default function Jewelery() {
-  const [jewelery, setJewelery] = useState([]);
+  const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const [productRatings, setProductRatings] = useState({});
 
   useEffect(() => {
-    const fetchJewelery = async () => {
+    const fetchProducts = async () => {
       try {
         const response = await axios.get(
           "https://fakestoreapi.com/products/category/jewelery"
         );
-        setJewelery(response.data);
+        const jeweleryData = response.data;
+        setItems(jeweleryData);
+
+        const ratingsPromises = jeweleryData.map(async (product) => {
+          const savedRatings = localStorage.getItem(`ratings_${product.id}`);
+          const ratings = savedRatings ? JSON.parse(savedRatings) : [];
+
+          const averageRating =
+            ratings.length > 0
+              ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1)
+              : 0;
+
+          return {
+            productId: product.id,
+            averageRating: parseFloat(averageRating),
+            ratingCount: ratings.length,
+          };
+        });
+
+        const ratings = await Promise.all(ratingsPromises);
+        const ratingsMap = ratings.reduce((acc, rating) => {
+          acc[rating.productId] = rating;
+          return acc;
+        }, {});
+
+        setProductRatings(ratingsMap);
         setLoading(false);
       } catch (error) {
+        console.error("Error fetching products:", error);
         setLoading(false);
       }
     };
 
-    fetchJewelery();
+    fetchProducts();
   }, []);
-
-  const handleProductClick = (productId) => {
-    navigate(`/product/${productId}`);
-  };
 
   if (loading) {
     return (
@@ -44,20 +66,30 @@ export default function Jewelery() {
       <Navbar />
       <h1 id="jewelery">Jewelery</h1>
       <div className="box jewelery-container">
-        {jewelery.map((item) => (
-          <div
-            key={item.id}
-            className="item jewelery-item"
-            onClick={() => handleProductClick(item.id)}
-          >
-            <img id="pictures-jewelery" src={item.image} alt={item.title} />
-            <h2 id="describtions-jewelery">{item.title}</h2>
-            <p id="prices-jewelery">${item.price}</p>
-            <button className="addToBasket">
-              <img id="cart" src={cart} alt="Add to basket" />
-            </button>
-          </div>
-        ))}
+        {items.map((item) => {
+          const rating = productRatings[item.id] || {
+            averageRating: 0,
+            ratingCount: 0,
+          };
+          return (
+            <div
+              key={item.id}
+              className="item jewelery-item"
+              onClick={() => (window.location.href = `/product/${item.id}`)}
+            >
+              <img id="pictures-jewelery" src={item.image} alt={item.title} />
+              <h2 id="describtions-jewelery">{item.title}</h2>
+              <p id="prices-jewelery">${item.price}</p>
+              <button className="addToBasket">
+                <img id="cart" src={cart} alt="Add to basket" />
+              </button>
+              <p className="small-rating">
+                {rating.averageRating.toFixed(1)} ★ ({rating.ratingCount}{" "}
+                reviews)
+              </p>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
