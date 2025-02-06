@@ -44,13 +44,13 @@ export default function ProductDetail() {
           <p className="price">Price: ${product.price}</p>
           <hr />
           <p className="description">{product.description}</p>
-          <div className="rating">
-            <StarRating productId={product.id} />
-          </div>
           <div className="addToBasket">
             <button>
               <img src={cart} className="cart" alt="Add to basket" />
             </button>
+          </div>
+          <div className="rating">
+            <StarRating productId={id} />
           </div>
         </div>
       </div>

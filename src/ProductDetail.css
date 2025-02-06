@@ -4,7 +4,6 @@
 }
 
 .product-detail {
-  align-items: center;
   display: flex;
   flex-direction: row;
   gap: 100px;
@@ -77,6 +76,7 @@
 .product-detail .left .addToBasket button {
   background-color: lightpink;
   border: none;
+  margin-bottom: 40px;
   padding: 10px 16px;
   width: 40%;
 }
@@ -88,4 +88,99 @@
 
 .product-detail .left .addToBasket img {
   width: 20%;
+}
+
+.product-detail .review-section {
+  width: 100%;
+  margin-top: 40px;
+}
+
+.product-detail .review-section textarea {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid lightpink;
+  border-radius: 5px;
+}
+
+.product-detail .review-section button {
+  background-color: lightpink;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin-top: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.product-detail .review-section .reviews-list {
+  margin-top: 20px;
+}
+
+.product-detail .review-section .review {
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+
+.product-detail .review-section .review-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 10px;
+}
+
+.product-detail .review-section textarea {
+  border: 1px solid lightpink;
+  border-radius: 0;
+  letter-spacing: 3px;
+  padding: 15px 20px;
+}
+
+.product-detail .review-section textarea:focus {
+  border: 5px solid #e52b50;
+  outline: none;
+}
+
+.product-detail .review-section button {
+  background-color: white;
+  border: 1px solid #e52b50;
+  border-radius: 0;
+  color: #e52b50;
+  font-weight: bold;
+  margin-bottom: 40px;
+  letter-spacing: 4px;
+}
+
+.product-detail .review-section button:hover {
+  background-color: lightpink;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: all 0.4s ease-in-out;
+}
+
+.product-detail .review-section h3 {
+  color: #e52b50;
+  font-size: 2rem;
+  font-weight: lighter;
+  letter-spacing: 4px;
+  margin-bottom: 30px;
+}
+
+.product-detail .review-section .reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.product-detail .review-section .reviews-list .review {
+  background-color: #f9f9f9;
+  border: 1px solid #e52b50;
+  border-radius: none;
+  font-weight: lighter;
+  letter-spacing: 3px;
+  padding: 20px;
 }
