@@ -40,6 +40,24 @@ export default function ProductDetail() {
     fetchProduct();
   }, [id]);
 
+  const addToCart = () => {
+    if (!product) return;
+
+    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    const existingProductIndex = cart.findIndex(
+      (item) => item.id === product.id
+    );
+
+    if (existingProductIndex > -1) {
+      cart[existingProductIndex].quantity += 1;
+    } else {
+      cart.push({ ...product, quantity: 1 });
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+    window.dispatchEvent(new Event("cart-update"));
+  };
+
   if (loading || !product) {
     return <div>Loading...</div>;
   }
@@ -58,8 +76,9 @@ export default function ProductDetail() {
           <hr />
           <p className="description">{product.description}</p>
           <div className="addToBasket">
-            <button>
+            <button className="add-to-cart-btn" onClick={addToCart}>
               <img src={cart} className="cart" alt="Add to basket" />
+              Add to Shopping Bag
             </button>
           </div>
           <StarRating productId={id} />

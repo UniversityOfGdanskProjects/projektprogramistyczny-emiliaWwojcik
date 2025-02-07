@@ -57,6 +57,22 @@ export default function Clothes() {
     navigate(`/product/${productId}`);
   };
 
+  const addToCart = (product) => {
+    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    const existingProductIndex = cart.findIndex(
+      (item) => item.id === product.id
+    );
+
+    if (existingProductIndex > -1) {
+      cart[existingProductIndex].quantity += 1;
+    } else {
+      cart.push({ ...product, quantity: 1 });
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+    window.dispatchEvent(new Event("storage"));
+  };
+
   if (loading) {
     return (
       <div className="clothes">
@@ -77,15 +93,22 @@ export default function Clothes() {
             ratingCount: 0,
           };
           return (
-            <div
-              key={item.id}
-              className="item clothing-item"
-              onClick={() => handleProductClick(item.id)}
-            >
-              <img id="pictures-clothes" src={item.image} alt={item.title} />
+            <div key={item.id} className="item clothing-item">
+              <img
+                id="pictures-clothes"
+                src={item.image}
+                alt={item.title}
+                onClick={() => handleProductClick(item.id)}
+              />
               <h2 id="describtions-clothes">{item.title}</h2>
               <p id="prices-clothes">${item.price}</p>
-              <button className="addToBasket">
+              <button
+                className="addToBasket"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  addToCart(item);
+                }}
+              >
                 <img id="cart" src={cart} alt="Add to basket" />
               </button>
               <p className="small-rating">

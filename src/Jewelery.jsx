@@ -52,6 +52,26 @@ export default function Jewelery() {
     fetchProducts();
   }, []);
 
+  const addToCart = (product) => {
+    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    const existingProductIndex = cart.findIndex(
+      (item) => item.id === product.id
+    );
+
+    if (existingProductIndex > -1) {
+      cart[existingProductIndex].quantity += 1;
+    } else {
+      cart.push({ ...product, quantity: 1 });
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+    window.dispatchEvent(new Event("storage"));
+  };
+
+  const handleProductClick = (id) => {
+    window.location.href = `/product/${id}`;
+  };
+
   if (loading) {
     return (
       <div className="jewelery">
@@ -75,12 +95,18 @@ export default function Jewelery() {
             <div
               key={item.id}
               className="item jewelery-item"
-              onClick={() => (window.location.href = `/product/${item.id}`)}
+              onClick={() => handleProductClick(item.id)}
             >
               <img id="pictures-jewelery" src={item.image} alt={item.title} />
               <h2 id="describtions-jewelery">{item.title}</h2>
               <p id="prices-jewelery">${item.price}</p>
-              <button className="addToBasket">
+              <button
+                className="addToBasket"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  addToCart(item);
+                }}
+              >
                 <img id="cart" src={cart} alt="Add to basket" />
               </button>
               <p className="small-rating">
