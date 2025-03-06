@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
 import "./Cart.css";
 
 export default function Cart() {
   const [cartItems, setCartItems] = useState([]);
+  const [discountCode, setDiscountCode] = useState("");
+  const [discount, setDiscount] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const savedCart = localStorage.getItem("cart");
@@ -28,7 +32,22 @@ export default function Cart() {
     window.dispatchEvent(new Event("cart-update"));
   };
 
+  const applyDiscount = () => {
+    if (discountCode === "EXAM20") {
+      setDiscount(0.2);
+    }
+  };
+
   const calculateTotal = () => {
+    const subtotal = cartItems.reduce(
+      (total, item) => total + item.price * item.quantity,
+      0
+    );
+    const discountAmount = subtotal * discount;
+    return (subtotal - discountAmount).toFixed(2);
+  };
+
+  const getOriginalTotal = () => {
     return cartItems
       .reduce((total, item) => total + item.price * item.quantity, 0)
       .toFixed(2);
@@ -73,7 +92,24 @@ export default function Cart() {
             <h2>
               Summary: <span>${calculateTotal()}</span>
             </h2>
-            <button>Go to checkout</button>
+            {discount > 0 && (
+              <div className="discount-applied">
+                <p>Code Applied !</p>
+                <p className="original-price">${getOriginalTotal()}</p>
+              </div>
+            )}
+            <button onClick={() => navigate("/checkout")}>
+              Go to checkout
+            </button>
+            <div className="discount-section">
+              <input
+                type="text"
+                value={discountCode}
+                onChange={(e) => setDiscountCode(e.target.value)}
+                placeholder="Enter discount code"
+              />
+              <button onClick={applyDiscount}>Apply</button>
+            </div>
             <hr />
           </div>
         )}

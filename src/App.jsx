@@ -1,7 +1,7 @@
 import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./Home.jsx";
 import Clothes from "./Clothes.jsx";
 import Jewelery from "./Jewelery.jsx";
@@ -10,7 +10,8 @@ import Cart from "./Cart";
 import AdminLayout from "./components/admin/AdminLayout";
 import Dashboard from "./components/admin/Dashboard";
 import ProductDetail from "./ProductDetail.jsx";
-import "bootstrap/dist/css/bootstrap.min.css";
+import Checkout from "./Checkout";
+import OrderConfirmation from "./OrderConfirmation";
 
 export default function App() {
   return (
@@ -21,6 +22,8 @@ export default function App() {
         <Route path="/jewelery" element={<Jewelery />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/order-confirmation" element={<OrderConfirmation />} />
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Dashboard />} />
@@ -29,7 +32,3 @@ export default function App() {
     </Router>
   );
 }
-
-fetch("https://fakestoreapi.com/products/category/jewelery")
-  .then((res) => res.json())
-  .then((json) => console.log(json));
