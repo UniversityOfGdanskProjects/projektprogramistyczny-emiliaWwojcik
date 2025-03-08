@@ -51,6 +51,12 @@ const Sidebar = () => {
                 <p>Orders</p>
               </Link>
             </li>
+            <li className="nav-item">
+              <Link to="/admin/inventory" className="nav-link">
+                <i className="nav-icon fas fa-warehouse"></i>
+                <p>Inventory</p>
+              </Link>
+            </li>
           </ul>
         </nav>
       </div>

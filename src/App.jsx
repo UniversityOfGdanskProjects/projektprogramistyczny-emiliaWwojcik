@@ -9,6 +9,7 @@ import SignIn from "./SignIn";
 import Cart from "./Cart";
 import AdminLayout from "./components/admin/AdminLayout";
 import Dashboard from "./components/admin/Dashboard";
+import Inventory from "./components/admin/Inventory";
 import ProductDetail from "./ProductDetail.jsx";
 import Checkout from "./Checkout";
 import OrderConfirmation from "./OrderConfirmation";
@@ -27,6 +28,7 @@ export default function App() {
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Dashboard />} />
+          <Route path="inventory" element={<Inventory />} />
         </Route>
       </Routes>
     </Router>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
+import Filter from "./components/Filter/Filter";
 import cart from "./assets/basket.png";
 import "./Jewelery.css";
 
@@ -9,6 +10,13 @@ export default function Jewelery() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [productRatings, setProductRatings] = useState({});
+  const [filters, setFilters] = useState({
+    minPrice: "",
+    maxPrice: "",
+    rating: "",
+    sort: "",
+  });
+  const [filteredItems, setFilteredItems] = useState([]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -18,6 +26,7 @@ export default function Jewelery() {
         );
         const jeweleryData = response.data;
         setItems(jeweleryData);
+        setFilteredItems(jeweleryData);
 
         const ratingsPromises = jeweleryData.map(async (product) => {
           const savedRatings = localStorage.getItem(`ratings_${product.id}`);
@@ -36,6 +45,7 @@ export default function Jewelery() {
         });
 
         const ratings = await Promise.all(ratingsPromises);
+
         const ratingsMap = ratings.reduce((acc, rating) => {
           acc[rating.productId] = rating;
           return acc;
@@ -44,13 +54,65 @@ export default function Jewelery() {
         setProductRatings(ratingsMap);
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching products:", error);
+        console.error("Error fetching jewelery:", error);
         setLoading(false);
       }
     };
 
     fetchProducts();
   }, []);
+
+  useEffect(() => {
+    let filtered = [...items];
+
+    if (filters.minPrice) {
+      filtered = filtered.filter(
+        (item) => item.price >= Number(filters.minPrice)
+      );
+    }
+
+    if (filters.maxPrice) {
+      filtered = filtered.filter(
+        (item) => item.price <= Number(filters.maxPrice)
+      );
+    }
+
+    if (filters.rating) {
+      filtered = filtered.filter((item) => {
+        const rating = productRatings[item.id]?.averageRating || 0;
+        if (filters.rating === "5") {
+          return rating === 5;
+        }
+        return rating > 0 && rating >= Number(filters.rating);
+      });
+    }
+
+    if (filters.sort) {
+      switch (filters.sort) {
+        case "price-asc":
+          filtered.sort((a, b) => b.price - a.price);
+          break;
+        case "price-desc":
+          filtered.sort((a, b) => a.price - b.price);
+          break;
+        case "rating-desc":
+          filtered.sort((a, b) => {
+            const ratingA = productRatings[a.id]?.averageRating || 0;
+            const ratingB = productRatings[b.id]?.averageRating || 0;
+            return ratingB - ratingA;
+          });
+          break;
+        default:
+          break;
+      }
+    }
+
+    setFilteredItems(filtered);
+  }, [filters, items, productRatings]);
+
+  const handleProductClick = (id) => {
+    window.location.href = `/product/${id}`;
+  };
 
   const addToCart = (product) => {
     const cart = JSON.parse(localStorage.getItem("cart") || "[]");
@@ -68,10 +130,6 @@ export default function Jewelery() {
     window.dispatchEvent(new Event("storage"));
   };
 
-  const handleProductClick = (id) => {
-    window.location.href = `/product/${id}`;
-  };
-
   if (loading) {
     return (
       <div className="jewelery">
@@ -84,20 +142,22 @@ export default function Jewelery() {
   return (
     <div className="jewelery">
       <Navbar />
+      <Filter filters={filters} setFilters={setFilters} />
       <h1 id="jewelery">Jewelery</h1>
       <div className="box jewelery-container">
-        {items.map((item) => {
+        {filteredItems.map((item) => {
           const rating = productRatings[item.id] || {
             averageRating: 0,
             ratingCount: 0,
           };
           return (
-            <div
-              key={item.id}
-              className="item jewelery-item"
-              onClick={() => handleProductClick(item.id)}
-            >
-              <img id="pictures-jewelery" src={item.image} alt={item.title} />
+            <div key={item.id} className="item jewelery-item">
+              <img
+                id="pictures-jewelery"
+                src={item.image}
+                alt={item.title}
+                onClick={() => handleProductClick(item.id)}
+              />
               <h2 id="describtions-jewelery">{item.title}</h2>
               <p id="prices-jewelery">${item.price}</p>
               <button

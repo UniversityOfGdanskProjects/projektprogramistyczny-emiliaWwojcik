@@ -2,23 +2,32 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
+import Filter from "./components/Filter/Filter";
 import cart from "./assets/basket.png";
 import "./Clothes.css";
 
 export default function Clothes() {
   const [clothing, setClothing] = useState([]);
+  const [filteredClothing, setFilteredClothing] = useState([]);
   const [loading, setLoading] = useState(true);
   const [productRatings, setProductRatings] = useState({});
+  const [filters, setFilters] = useState({
+    minPrice: "",
+    maxPrice: "",
+    rating: "",
+    sort: "",
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchClothing = async () => {
       try {
         const response = await axios.get(
-          "https://fakestoreapi.com/products/category/women's clothing"
+          "https://fakestoreapi.com/products/category/women's%20clothing"
         );
         const clothingData = response.data;
         setClothing(clothingData);
+        setFilteredClothing(clothingData);
 
         const ratingsPromises = clothingData.map(async (product) => {
           const savedRatings = localStorage.getItem(`ratings_${product.id}`);
@@ -37,6 +46,7 @@ export default function Clothes() {
         });
 
         const ratings = await Promise.all(ratingsPromises);
+
         const ratingsMap = ratings.reduce((acc, rating) => {
           acc[rating.productId] = rating;
           return acc;
@@ -52,6 +62,54 @@ export default function Clothes() {
 
     fetchClothing();
   }, []);
+
+  useEffect(() => {
+    let filtered = [...clothing];
+
+    if (filters.minPrice) {
+      filtered = filtered.filter(
+        (item) => item.price >= Number(filters.minPrice)
+      );
+    }
+
+    if (filters.maxPrice) {
+      filtered = filtered.filter(
+        (item) => item.price <= Number(filters.maxPrice)
+      );
+    }
+
+    if (filters.rating) {
+      filtered = filtered.filter((item) => {
+        const rating = productRatings[item.id]?.averageRating || 0;
+        if (filters.rating === "5") {
+          return rating === 5;
+        }
+        return rating > 0 && rating >= Number(filters.rating);
+      });
+    }
+
+    if (filters.sort) {
+      switch (filters.sort) {
+        case "price-asc":
+          filtered.sort((a, b) => b.price - a.price);
+          break;
+        case "price-desc":
+          filtered.sort((a, b) => a.price - b.price);
+          break;
+        case "rating-desc":
+          filtered.sort((a, b) => {
+            const ratingA = productRatings[a.id]?.averageRating || 0;
+            const ratingB = productRatings[b.id]?.averageRating || 0;
+            return ratingB - ratingA;
+          });
+          break;
+        default:
+          break;
+      }
+    }
+
+    setFilteredClothing(filtered);
+  }, [filters, clothing, productRatings]);
 
   const handleProductClick = (productId) => {
     navigate(`/product/${productId}`);
@@ -85,9 +143,10 @@ export default function Clothes() {
   return (
     <div className="clothes">
       <Navbar />
+      <Filter filters={filters} setFilters={setFilters} />
       <h1 id="women-clothes">Women's Clothes</h1>
       <div className="box clothing-container">
-        {clothing.map((item) => {
+        {filteredClothing.map((item) => {
           const rating = productRatings[item.id] || {
             averageRating: 0,
             ratingCount: 0,
