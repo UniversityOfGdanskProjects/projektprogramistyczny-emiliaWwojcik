@@ -119,9 +119,8 @@ const JeweleryContent = () => {
             <p id="prices-jewelery">${item.price}</p>
             <button
               className="addToBasket"
-              onClick={(e) => {
-                e.stopPropagation();
-                addToCart(item);
+              onClick={() => {
+                addToCart(product);
               }}
             >
               <img id="cart" src={cart} alt="Add to basket" />

@@ -118,8 +118,7 @@ const ClothesContent = () => {
             <p id="prices-clothes">${product.price}</p>
             <button
               className="addToBasket"
-              onClick={(e) => {
-                e.stopPropagation();
+              onClick={() => {
                 addToCart(product);
               }}
             >
