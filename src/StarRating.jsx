@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FaStar } from "react-icons/fa";
 import PropTypes from "prop-types";
 import Star from "./Star";
@@ -18,6 +18,8 @@ function StarRating({ productId, totalStars = 5 }) {
   });
   const [showAlert, setShowAlert] = useState(false);
 
+  const starRefs = useRef([]);
+
   useEffect(() => {
     localStorage.setItem(`ratings_${productId}`, JSON.stringify(ratings));
   }, [ratings, productId]);
@@ -36,6 +38,14 @@ function StarRating({ productId, totalStars = 5 }) {
     setTimeout(() => {
       setShowAlert(false);
     }, 3000);
+
+    starRefs.current.forEach((star, index) => {
+      if (index < rating) {
+        star.classList.add("selected");
+      } else {
+        star.classList.remove("selected");
+      }
+    });
   };
 
   const handleReviewSubmit = () => {
@@ -72,6 +82,7 @@ function StarRating({ productId, totalStars = 5 }) {
           {createArray(totalStars).map((n, i) => (
             <Star
               key={i}
+              ref={(el) => (starRefs.current[i] = el)}
               selected={selectedStars > i}
               onSelect={() => handleStarSelect(i + 1)}
             />
