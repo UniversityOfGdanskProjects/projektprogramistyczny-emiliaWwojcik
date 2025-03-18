@@ -5,47 +5,36 @@ import "./Checkout.css";
 
 export default function Checkout() {
   const navigate = useNavigate();
-  const [shippingData, setShippingData] = useState({
-    street: "",
-    city: "",
-    zipCode: "",
-    country: "",
+  const [formData, setFormData] = useState({
+    shipping: { street: "", city: "", zipCode: "", country: "" },
+    payment: { cardNumber: "", expiryDate: "", cvv: "" },
+    contact: {
+      name: "",
+      surname: "",
+      email: "",
+      phone: "",
+      password: "",
+      repeatPassword: "",
+    },
+    isChecked: false,
   });
-  const [paymentData, setPaymentData] = useState({
-    cardNumber: "",
-    expiryDate: "",
-    cvv: "",
-  });
-  const [contactData, setContactData] = useState({
-    name: "",
-    surname: "",
-    email: "",
-    phone: "",
-    password: "",
-    repeatPassword: "",
-  });
-  const [isChecked, setIsChecked] = useState(false);
 
   const validateAllData = () => {
+    const { shipping, payment, contact, isChecked } = formData;
+
     const baseValidation =
-      shippingData.street.trim() !== "" &&
-      shippingData.city.trim() !== "" &&
-      shippingData.zipCode.trim() !== "" &&
-      shippingData.country.trim() !== "" &&
-      paymentData.cardNumber.trim() !== "" &&
-      paymentData.expiryDate.trim() !== "" &&
-      paymentData.cvv.trim() !== "" &&
-      contactData.name.trim() !== "" &&
-      contactData.surname.trim() !== "" &&
-      contactData.email.trim() !== "" &&
-      contactData.phone.trim() !== "";
+      Object.values(shipping).every((val) => val.trim() !== "") &&
+      Object.values(payment).every((val) => val.trim() !== "") &&
+      Object.values(contact)
+        .slice(0, 4)
+        .every((val) => val.trim() !== "");
 
     if (isChecked) {
       return (
         baseValidation &&
-        contactData.password.trim() !== "" &&
-        contactData.repeatPassword.trim() !== "" &&
-        contactData.password === contactData.repeatPassword
+        contact.password.trim() !== "" &&
+        contact.repeatPassword.trim() !== "" &&
+        contact.password === contact.repeatPassword
       );
     }
 
@@ -55,21 +44,41 @@ export default function Checkout() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!validateAllData()) {
-      alert("Please fill in all fields");
+      alert("Please fill in all required fields");
       return;
     }
-    if (isChecked && contactData.password !== contactData.repeatPassword) {
+
+    if (
+      formData.isChecked &&
+      formData.contact.password !== formData.contact.repeatPassword
+    ) {
       alert("Passwords do not match!");
       return;
     }
 
-    // W prawdziwej aplikacji tutaj byłoby wysyłanie zamówienia do backendu
     navigate("/order-confirmation", {
       state: {
-        name: contactData.name,
-        email: contactData.email,
+        name: formData.contact.name,
+        email: formData.contact.email,
       },
     });
+  };
+
+  const handleInputChange = (section, field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        [field]: value,
+      },
+    }));
+  };
+
+  const handleCheckboxChange = () => {
+    setFormData((prev) => ({
+      ...prev,
+      isChecked: !prev.isChecked,
+    }));
   };
 
   return (
@@ -77,43 +86,43 @@ export default function Checkout() {
       <Navbar />
       <div className="checkout-container">
         <h1>Checkout</h1>
-        <form className="checkout-form-container" onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="checkout-form-container">
           <div className="checkout-section">
             <h2>Shipping Address</h2>
             <div className="section-content">
               <input
                 type="text"
                 placeholder="Street Address"
-                value={shippingData.street}
+                value={formData.shipping.street}
                 onChange={(e) =>
-                  setShippingData({ ...shippingData, street: e.target.value })
+                  handleInputChange("shipping", "street", e.target.value)
                 }
                 required
               />
               <input
                 type="text"
                 placeholder="City"
-                value={shippingData.city}
+                value={formData.shipping.city}
                 onChange={(e) =>
-                  setShippingData({ ...shippingData, city: e.target.value })
+                  handleInputChange("shipping", "city", e.target.value)
                 }
                 required
               />
               <input
                 type="text"
                 placeholder="ZIP Code"
-                value={shippingData.zipCode}
+                value={formData.shipping.zipCode}
                 onChange={(e) =>
-                  setShippingData({ ...shippingData, zipCode: e.target.value })
+                  handleInputChange("shipping", "zipCode", e.target.value)
                 }
                 required
               />
               <input
                 type="text"
                 placeholder="Country"
-                value={shippingData.country}
+                value={formData.shipping.country}
                 onChange={(e) =>
-                  setShippingData({ ...shippingData, country: e.target.value })
+                  handleInputChange("shipping", "country", e.target.value)
                 }
                 required
               />
@@ -126,27 +135,27 @@ export default function Checkout() {
               <input
                 type="text"
                 placeholder="Card Number"
-                value={paymentData.cardNumber}
+                value={formData.payment.cardNumber}
                 onChange={(e) =>
-                  setPaymentData({ ...paymentData, cardNumber: e.target.value })
+                  handleInputChange("payment", "cardNumber", e.target.value)
                 }
                 required
               />
               <input
                 type="text"
                 placeholder="MM/YY"
-                value={paymentData.expiryDate}
+                value={formData.payment.expiryDate}
                 onChange={(e) =>
-                  setPaymentData({ ...paymentData, expiryDate: e.target.value })
+                  handleInputChange("payment", "expiryDate", e.target.value)
                 }
                 required
               />
               <input
                 type="text"
                 placeholder="CVV"
-                value={paymentData.cvv}
+                value={formData.payment.cvv}
                 onChange={(e) =>
-                  setPaymentData({ ...paymentData, cvv: e.target.value })
+                  handleInputChange("payment", "cvv", e.target.value)
                 }
                 required
               />
@@ -159,36 +168,36 @@ export default function Checkout() {
               <input
                 type="text"
                 placeholder="Name"
-                value={contactData.name}
+                value={formData.contact.name}
                 onChange={(e) =>
-                  setContactData({ ...contactData, name: e.target.value })
+                  handleInputChange("contact", "name", e.target.value)
                 }
                 required
               />
               <input
                 type="text"
                 placeholder="Surname"
-                value={contactData.surname}
+                value={formData.contact.surname}
                 onChange={(e) =>
-                  setContactData({ ...contactData, surname: e.target.value })
+                  handleInputChange("contact", "surname", e.target.value)
                 }
                 required
               />
               <input
                 type="email"
                 placeholder="Email"
-                value={contactData.email}
+                value={formData.contact.email}
                 onChange={(e) =>
-                  setContactData({ ...contactData, email: e.target.value })
+                  handleInputChange("contact", "email", e.target.value)
                 }
                 required
               />
               <input
                 type="tel"
                 placeholder="Phone Number"
-                value={contactData.phone}
+                value={formData.contact.phone}
                 onChange={(e) =>
-                  setContactData({ ...contactData, phone: e.target.value })
+                  handleInputChange("contact", "phone", e.target.value)
                 }
                 required
               />
@@ -199,34 +208,31 @@ export default function Checkout() {
             <input
               type="checkbox"
               id="hello-checkbox"
-              checked={isChecked}
-              onChange={(e) => setIsChecked(e.target.checked)}
+              checked={formData.isChecked}
+              onChange={handleCheckboxChange}
             />
             <label htmlFor="hello-checkbox">
               I want to create an account and get 10% off next order !
             </label>
           </div>
 
-          {isChecked && (
+          {formData.isChecked && (
             <div className="password-section">
               <input
                 type="password"
                 placeholder="Password"
-                value={contactData.password}
+                value={formData.contact.password}
                 onChange={(e) =>
-                  setContactData({ ...contactData, password: e.target.value })
+                  handleInputChange("contact", "password", e.target.value)
                 }
                 required
               />
               <input
                 type="password"
                 placeholder="Repeat Password"
-                value={contactData.repeatPassword}
+                value={formData.contact.repeatPassword}
                 onChange={(e) =>
-                  setContactData({
-                    ...contactData,
-                    repeatPassword: e.target.value,
-                  })
+                  handleInputChange("contact", "repeatPassword", e.target.value)
                 }
                 required
               />

@@ -1,29 +1,66 @@
-import React from "react";
+import React, { createContext, useContext, useReducer, useMemo } from "react";
 import "./Filter.css";
 
-export default function Filter({ filters, setFilters }) {
+export const FilterContext = createContext();
+
+const filterReducer = (state, action) => {
+  switch (action.type) {
+    case "SET_FILTER":
+      return { ...state, ...action.payload };
+    case "RESET_FILTERS":
+      return initialState;
+    default:
+      return state;
+  }
+};
+
+const initialState = {
+  minPrice: "",
+  maxPrice: "",
+  rating: "",
+  sort: "",
+};
+
+export const FilterProvider = ({ children }) => {
+  const [state, dispatch] = useReducer(filterReducer, initialState);
+
+  const value = useMemo(
+    () => ({
+      state,
+      dispatch,
+      setFilters: (filters) =>
+        dispatch({ type: "SET_FILTER", payload: filters }),
+      resetFilters: () => dispatch({ type: "RESET_FILTERS" }),
+    }),
+    [state]
+  );
+
+  return (
+    <FilterContext.Provider value={value}>{children}</FilterContext.Provider>
+  );
+};
+
+export const useFilter = () => {
+  const context = useContext(FilterContext);
+  if (!context) {
+    throw new Error("useFilter must be used within a FilterProvider");
+  }
+  return context;
+};
+
+const Filter = () => {
+  const { state, setFilters, resetFilters } = useFilter();
+
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setFilters((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const clearFilters = () => {
-    setFilters({
-      minPrice: "",
-      maxPrice: "",
-      rating: "",
-      sort: "",
-    });
+    setFilters({ [name]: value });
   };
 
   return (
     <div className="filter-container">
       <div className="filter-header">
         <h2>Filter</h2>
-        <button onClick={clearFilters}>Clear</button>
+        <button onClick={resetFilters}>Clear</button>
       </div>
 
       <div className="filter-content">
@@ -34,7 +71,7 @@ export default function Filter({ filters, setFilters }) {
               type="number"
               name="minPrice"
               placeholder="Min"
-              value={filters.minPrice}
+              value={state.minPrice}
               onChange={handleFilterChange}
             />
             <span>-</span>
@@ -42,7 +79,7 @@ export default function Filter({ filters, setFilters }) {
               type="number"
               name="maxPrice"
               placeholder="Max"
-              value={filters.maxPrice}
+              value={state.maxPrice}
               onChange={handleFilterChange}
             />
           </div>
@@ -56,7 +93,7 @@ export default function Filter({ filters, setFilters }) {
                 type="radio"
                 name="rating"
                 value=""
-                checked={filters.rating === ""}
+                checked={state.rating === ""}
                 onChange={handleFilterChange}
               />
               Any
@@ -66,7 +103,7 @@ export default function Filter({ filters, setFilters }) {
                 type="radio"
                 name="rating"
                 value="5"
-                checked={filters.rating === "5"}
+                checked={state.rating === "5"}
                 onChange={handleFilterChange}
               />
               5★
@@ -77,7 +114,7 @@ export default function Filter({ filters, setFilters }) {
                   type="radio"
                   name="rating"
                   value={rating}
-                  checked={filters.rating === rating.toString()}
+                  checked={state.rating === rating.toString()}
                   onChange={handleFilterChange}
                 />
                 {rating}+★
@@ -94,7 +131,7 @@ export default function Filter({ filters, setFilters }) {
                 type="radio"
                 name="sort"
                 value=""
-                checked={filters.sort === ""}
+                checked={state.sort === ""}
                 onChange={handleFilterChange}
               />
               Default
@@ -104,7 +141,7 @@ export default function Filter({ filters, setFilters }) {
                 type="radio"
                 name="sort"
                 value="price-asc"
-                checked={filters.sort === "price-asc"}
+                checked={state.sort === "price-asc"}
                 onChange={handleFilterChange}
               />
               Price ↑
@@ -114,7 +151,7 @@ export default function Filter({ filters, setFilters }) {
                 type="radio"
                 name="sort"
                 value="price-desc"
-                checked={filters.sort === "price-desc"}
+                checked={state.sort === "price-desc"}
                 onChange={handleFilterChange}
               />
               Price ↓
@@ -124,7 +161,7 @@ export default function Filter({ filters, setFilters }) {
                 type="radio"
                 name="sort"
                 value="rating-desc"
-                checked={filters.sort === "rating-desc"}
+                checked={state.sort === "rating-desc"}
                 onChange={handleFilterChange}
               />
               Top Rated
@@ -134,4 +171,6 @@ export default function Filter({ filters, setFilters }) {
       </div>
     </div>
   );
-}
+};
+
+export default Filter;

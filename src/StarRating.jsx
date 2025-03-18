@@ -26,11 +26,16 @@ function StarRating({ productId, totalStars = 5 }) {
     localStorage.setItem(`reviews_${productId}`, JSON.stringify(savedReviews));
   }, [savedReviews, productId]);
 
-  const handleSelect = (rating) => {
+  const handleStarSelect = (rating) => {
     setSelectedStars(rating);
+    setTimeout(() => {
+      setSelectedStars(0);
+    }, 2000);
     setRatings((prevRatings) => [...prevRatings, rating]);
     setShowAlert(true);
-    setTimeout(() => setShowAlert(false), 3000);
+    setTimeout(() => {
+      setShowAlert(false);
+    }, 3000);
   };
 
   const handleReviewSubmit = () => {
@@ -68,7 +73,7 @@ function StarRating({ productId, totalStars = 5 }) {
             <Star
               key={i}
               selected={selectedStars > i}
-              onSelect={() => handleSelect(i + 1)}
+              onSelect={() => handleStarSelect(i + 1)}
             />
           ))}
         </div>
@@ -103,10 +108,5 @@ function StarRating({ productId, totalStars = 5 }) {
     </>
   );
 }
-
-StarRating.propTypes = {
-  productId: PropTypes.string.isRequired,
-  totalStars: PropTypes.number,
-};
 
 export default StarRating;

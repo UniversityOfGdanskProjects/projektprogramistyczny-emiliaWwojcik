@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navbar from "./components/Navbar/Navbar";
 import cart from "./assets/basket.png";
 import "./ProductDetail.css";
 import StarRating from "./StarRating";
 import { Carousel } from "react-bootstrap";
+import { addToCart } from "./components/cartAdd/cartAdd";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 export default function ProductDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [similarProducts, setSimilarProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,9 +28,9 @@ export default function ProductDetail() {
           `https://fakestoreapi.com/products/category/${response.data.category}`
         );
 
-        const filteredSimilarProducts = similarResponse.data
-          .filter((p) => p.id !== parseInt(id))
-          .slice(0, 6);
+        const filteredSimilarProducts = similarResponse.data.filter(
+          (p) => p.id !== Number(id)
+        );
 
         setSimilarProducts(filteredSimilarProducts);
         setLoading(false);
@@ -40,43 +42,36 @@ export default function ProductDetail() {
     fetchProduct();
   }, [id]);
 
-  const addToCart = () => {
-    if (!product) return;
-
-    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-    const existingProductIndex = cart.findIndex(
-      (item) => item.id === product.id
-    );
-
-    if (existingProductIndex > -1) {
-      cart[existingProductIndex].quantity += 1;
-    } else {
-      cart.push({ ...product, quantity: 1 });
-    }
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-    window.dispatchEvent(new Event("cart-update"));
-  };
-
   if (loading || !product) {
-    return <div>Loading...</div>;
+    return (
+      <div className="loading">
+        <h1>Loading...</h1>
+      </div>
+    );
   }
+
+  const handleSimilarProductClick = (productId) => {
+    navigate(`/product/${productId}`);
+  };
 
   return (
     <div>
       <Navbar />
       <div className="product-detail">
-        <div className="right">
+        <div className="left">
           <img src={product.image} alt={product.title} />
         </div>
-        <div className="left">
+        <div className="right">
           <h1 className="name">{product.title}</h1>
           <hr />
           <p className="price">Price: ${product.price}</p>
           <hr />
           <p className="description">{product.description}</p>
           <div className="addToBasket">
-            <button className="add-to-cart-btn" onClick={addToCart}>
+            <button
+              className="add-to-cart-btn"
+              onClick={() => addToCart(product)}
+            >
               <img src={cart} className="cart" alt="Add to basket" />
               Add to Shopping Bag
             </button>
@@ -92,7 +87,10 @@ export default function ProductDetail() {
             {similarProducts.map((similar) => (
               <Carousel.Item key={similar.id}>
                 <div className="d-flex justify-content-center">
-                  <div className="similar-product-card">
+                  <div
+                    className="similar-product-card"
+                    onClick={() => handleSimilarProductClick(similar.id)}
+                  >
                     <img
                       src={similar.image}
                       alt={similar.title}

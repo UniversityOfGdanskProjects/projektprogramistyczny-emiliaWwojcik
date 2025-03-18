@@ -1,57 +1,131 @@
-import React, { useState, useEffect } from "react";
+import React, { useReducer, useLayoutEffect, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
 import "./Cart.css";
 
-export default function Cart() {
-  const [cartItems, setCartItems] = useState([]);
-  const [discountCode, setDiscountCode] = useState("");
-  const [discount, setDiscount] = useState(0);
+const cartReducer = (state, action) => {
+  switch (action.type) {
+    case "SET_CART":
+      return {
+        ...state,
+        items: action.payload,
+      };
+    case "UPDATE_QUANTITY":
+      return {
+        ...state,
+        items: state.items.map((item) =>
+          item.id === action.payload.id
+            ? { ...item, quantity: action.payload.quantity }
+            : item
+        ),
+      };
+    case "REMOVE_ITEM":
+      return {
+        ...state,
+        items: state.items.filter((item) => item.id !== action.payload),
+      };
+    case "APPLY_DISCOUNT":
+      return {
+        ...state,
+        discountCode: action.payload.code,
+        discount: action.payload.value,
+      };
+    case "SET_DISCOUNT_CODE":
+      return {
+        ...state,
+        discountCode: action.payload,
+      };
+    case "CLEAR_CART":
+      return {
+        ...state,
+        items: [],
+        discountCode: "",
+        discount: 0,
+      };
+    default:
+      return state;
+  }
+};
+
+const initialState = {
+  items: [],
+  discountCode: "",
+  discount: 0,
+};
+
+const Cart = () => {
+  const [state, dispatch] = useReducer(cartReducer, initialState);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const savedCart = localStorage.getItem("cart");
-    if (savedCart) {
-      setCartItems(JSON.parse(savedCart));
-    }
+  useLayoutEffect(() => {
+    const cartItems = JSON.parse(localStorage.getItem("cart") || "[]");
+    dispatch({ type: "SET_CART", payload: cartItems });
   }, []);
 
-  const removeFromCart = (productId) => {
-    const updatedCart = cartItems.filter((item) => item.id !== productId);
-    setCartItems(updatedCart);
+  useEffect(() => {
+    const handleCartUpdate = () => {
+      const cartItems = JSON.parse(localStorage.getItem("cart") || "[]");
+      dispatch({ type: "SET_CART", payload: cartItems });
+    };
+
+    window.addEventListener("cart-update", handleCartUpdate);
+    return () => {
+      window.removeEventListener("cart-update", handleCartUpdate);
+    };
+  }, []);
+
+  const updateQuantity = (id, newQuantity) => {
+    if (newQuantity < 1) {
+      dispatch({ type: "REMOVE_ITEM", payload: id });
+    } else {
+      dispatch({
+        type: "UPDATE_QUANTITY",
+        payload: { id, quantity: newQuantity },
+      });
+    }
+
+    const updatedCart = state.items
+      .map((item) =>
+        item.id === id ? { ...item, quantity: newQuantity } : item
+      )
+      .filter((item) => item.quantity > 0);
+
     localStorage.setItem("cart", JSON.stringify(updatedCart));
     window.dispatchEvent(new Event("cart-update"));
   };
 
-  const updateQuantity = (productId, newQuantity) => {
-    const updatedCart = cartItems.map((item) =>
-      item.id === productId ? { ...item, quantity: newQuantity } : item
-    );
-    setCartItems(updatedCart);
+  const removeFromCart = (id) => {
+    dispatch({ type: "REMOVE_ITEM", payload: id });
+    const updatedCart = state.items.filter((item) => item.id !== id);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
     window.dispatchEvent(new Event("cart-update"));
   };
 
-  const applyDiscount = () => {
-    if (discountCode === "EXAM20") {
-      setDiscount(0.2);
+  const handleDiscountCode = (code) => {
+    if (code === "EXAM20") {
+      dispatch({
+        type: "APPLY_DISCOUNT",
+        payload: { code, value: 20 },
+      });
     }
   };
 
-  const calculateTotal = () => {
-    const subtotal = cartItems.reduce(
+  const cartTotal = useMemo(() => {
+    const subtotal = state.items.reduce(
       (total, item) => total + item.price * item.quantity,
       0
     );
-    const discountAmount = subtotal * discount;
-    return (subtotal - discountAmount).toFixed(2);
-  };
+    return state.discount
+      ? subtotal - (subtotal * state.discount) / 100
+      : subtotal;
+  }, [state.items, state.discount]);
 
-  const getOriginalTotal = () => {
-    return cartItems
-      .reduce((total, item) => total + item.price * item.quantity, 0)
-      .toFixed(2);
-  };
+  const originalTotal = useMemo(() => {
+    return state.items.reduce(
+      (total, item) => total + item.price * item.quantity,
+      0
+    );
+  }, [state.items]);
 
   return (
     <div>
@@ -59,12 +133,12 @@ export default function Cart() {
       <h1 className="cart-title">Shopping bag</h1>
       <div className="cart-container">
         <div className="cart-items-container">
-          {cartItems.length === 0 ? (
+          {state.items.length === 0 ? (
             <p className="noting-incart">
               Your shopping bag is empty... <span>Time to go shopping!</span>
             </p>
           ) : (
-            cartItems.map((item) => (
+            state.items.map((item) => (
               <div key={item.id} className="cart-items">
                 <img src={item.image} alt={item.title} />
                 <div className="products-incart">
@@ -86,16 +160,16 @@ export default function Cart() {
             ))
           )}
         </div>
-        {cartItems.length > 0 && (
+        {state.items.length > 0 && (
           <div className="cart-summary">
             <hr />
             <h2>
-              Summary: <span>${calculateTotal()}</span>
+              Summary: <span>${cartTotal.toFixed(2)}</span>
             </h2>
-            {discount > 0 && (
+            {state.discount > 0 && (
               <div className="discount-applied">
                 <p>Code Applied !</p>
-                <p className="original-price">${getOriginalTotal()}</p>
+                <p className="original-price">${originalTotal.toFixed(2)}</p>
               </div>
             )}
             <button onClick={() => navigate("/checkout")}>
@@ -104,11 +178,18 @@ export default function Cart() {
             <div className="discount-section">
               <input
                 type="text"
-                value={discountCode}
-                onChange={(e) => setDiscountCode(e.target.value)}
+                value={state.discountCode}
+                onChange={(e) =>
+                  dispatch({
+                    type: "SET_DISCOUNT_CODE",
+                    payload: e.target.value,
+                  })
+                }
                 placeholder="Enter discount code"
               />
-              <button onClick={applyDiscount}>Apply</button>
+              <button onClick={() => handleDiscountCode(state.discountCode)}>
+                Apply
+              </button>
             </div>
             <hr />
           </div>
@@ -116,4 +197,6 @@ export default function Cart() {
       </div>
     </div>
   );
-}
+};
+
+export default Cart;

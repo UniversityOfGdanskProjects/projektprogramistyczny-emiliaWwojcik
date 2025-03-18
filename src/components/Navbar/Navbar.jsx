@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./Navbar.css";
@@ -18,6 +18,16 @@ export default function Navbar() {
     category: "",
     rating: "",
   });
+  const searchInputRef = useRef(null);
+
+  useLayoutEffect(() => {
+    const updateCartCount = () => {
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+      setCartItemCount(totalItems);
+    };
+    updateCartCount();
+  }, []);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -31,14 +41,17 @@ export default function Navbar() {
     fetchProducts();
   }, []);
 
-  const updateCartCount = () => {
-    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-    const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-    setCartItemCount(totalItems);
-  };
+  useEffect(() => {
+    searchInputRef.current?.focus();
+  }, []);
 
   useEffect(() => {
-    updateCartCount();
+    const updateCartCount = () => {
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+      setCartItemCount(totalItems);
+    };
+
     window.addEventListener("storage", updateCartCount);
     window.addEventListener("cart-update", updateCartCount);
     return () => {
@@ -142,6 +155,7 @@ export default function Navbar() {
           <li className="search-container">
             <div className="search-header">
               <input
+                ref={searchInputRef}
                 type="text"
                 placeholder="🔎 Search..."
                 value={searchQuery}

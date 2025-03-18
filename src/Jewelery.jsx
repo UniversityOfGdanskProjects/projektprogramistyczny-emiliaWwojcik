@@ -1,22 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
-import Filter from "./components/Filter/Filter";
+import Filter, { FilterProvider, useFilter } from "./components/Filter/Filter";
 import cart from "./assets/basket.png";
+import { addToCart } from "./components/cartAdd/cartAdd";
 import "./Jewelery.css";
 
-export default function Jewelery() {
+const JeweleryContent = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { state: filterState } = useFilter();
   const [productRatings, setProductRatings] = useState({});
-  const [filters, setFilters] = useState({
-    minPrice: "",
-    maxPrice: "",
-    rating: "",
-    sort: "",
-  });
-  const [filteredItems, setFilteredItems] = useState([]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -26,114 +21,84 @@ export default function Jewelery() {
         );
         const jeweleryData = response.data;
         setItems(jeweleryData);
-        setFilteredItems(jeweleryData);
+        setLoading(false);
 
         const ratingsPromises = jeweleryData.map(async (product) => {
           const savedRatings = localStorage.getItem(`ratings_${product.id}`);
           const ratings = savedRatings ? JSON.parse(savedRatings) : [];
 
-          const averageRating =
-            ratings.length > 0
-              ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1)
-              : 0;
-
+          if (ratings.length > 0) {
+            const sum = ratings.reduce((acc, curr) => acc + curr, 0);
+            return {
+              productId: product.id,
+              averageRating: sum / ratings.length,
+              ratingCount: ratings.length,
+            };
+          }
           return {
             productId: product.id,
-            averageRating: parseFloat(averageRating),
-            ratingCount: ratings.length,
+            averageRating: product.rating.rate,
+            ratingCount: product.rating.count,
           };
         });
 
-        const ratings = await Promise.all(ratingsPromises);
-
-        const ratingsMap = ratings.reduce((acc, rating) => {
-          acc[rating.productId] = rating;
+        const ratingsResults = await Promise.all(ratingsPromises);
+        const ratingsMap = ratingsResults.reduce((acc, curr) => {
+          acc[curr.productId] = {
+            averageRating: curr.averageRating,
+            ratingCount: curr.ratingCount,
+          };
           return acc;
         }, {});
 
         setProductRatings(ratingsMap);
-        setLoading(false);
       } catch (error) {
         console.error("Error fetching jewelery:", error);
         setLoading(false);
       }
     };
-
     fetchProducts();
   }, []);
 
-  useEffect(() => {
-    let filtered = [...items];
+  const filteredItems = useMemo(() => {
+    return items
+      .filter((item) => {
+        const { minPrice, maxPrice, rating } = filterState;
 
-    if (filters.minPrice) {
-      filtered = filtered.filter(
-        (item) => item.price >= Number(filters.minPrice)
-      );
-    }
+        const meetsMinPrice = !minPrice || item.price >= Number(minPrice);
+        const meetsMaxPrice = !maxPrice || item.price <= Number(maxPrice);
+        const meetsRating =
+          !rating ||
+          (rating === "5"
+            ? productRatings[item.id]?.averageRating === 5
+            : productRatings[item.id]?.averageRating >= Number(rating));
 
-    if (filters.maxPrice) {
-      filtered = filtered.filter(
-        (item) => item.price <= Number(filters.maxPrice)
-      );
-    }
-
-    if (filters.rating) {
-      filtered = filtered.filter((item) => {
-        const rating = productRatings[item.id]?.averageRating || 0;
-        if (filters.rating === "5") {
-          return rating === 5;
+        return meetsMinPrice && meetsMaxPrice && meetsRating;
+      })
+      .sort((a, b) => {
+        switch (filterState.sort) {
+          case "price-asc":
+            return a.price - b.price;
+          case "price-desc":
+            return b.price - a.price;
+          case "rating-desc":
+            return (
+              (productRatings[b.id]?.averageRating || 0) -
+              (productRatings[a.id]?.averageRating || 0)
+            );
+          default:
+            return 0;
         }
-        return rating > 0 && rating >= Number(filters.rating);
       });
-    }
+  }, [items, filterState, productRatings]);
 
-    if (filters.sort) {
-      switch (filters.sort) {
-        case "price-asc":
-          filtered.sort((a, b) => b.price - a.price);
-          break;
-        case "price-desc":
-          filtered.sort((a, b) => a.price - b.price);
-          break;
-        case "rating-desc":
-          filtered.sort((a, b) => {
-            const ratingA = productRatings[a.id]?.averageRating || 0;
-            const ratingB = productRatings[b.id]?.averageRating || 0;
-            return ratingB - ratingA;
-          });
-          break;
-        default:
-          break;
-      }
-    }
-
-    setFilteredItems(filtered);
-  }, [filters, items, productRatings]);
-
-  const handleProductClick = (id) => {
-    window.location.href = `/product/${id}`;
-  };
-
-  const addToCart = (product) => {
-    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-    const existingProductIndex = cart.findIndex(
-      (item) => item.id === product.id
-    );
-
-    if (existingProductIndex > -1) {
-      cart[existingProductIndex].quantity += 1;
-    } else {
-      cart.push({ ...product, quantity: 1 });
-    }
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-    window.dispatchEvent(new Event("storage"));
+  const handleProductClick = (productId) => {
+    window.location.href = `/product/${productId}`;
   };
 
   if (loading) {
     return (
       <div className="jewelery">
-        <Navbar />
         <h1 id="loading-jewelery">Loading...</h1>
       </div>
     );
@@ -141,42 +106,50 @@ export default function Jewelery() {
 
   return (
     <div className="jewelery">
-      <Navbar />
-      <Filter filters={filters} setFilters={setFilters} />
-      <h1 id="jewelery">Jewelery</h1>
       <div className="box jewelery-container">
-        {filteredItems.map((item) => {
-          const rating = productRatings[item.id] || {
-            averageRating: 0,
-            ratingCount: 0,
-          };
-          return (
-            <div key={item.id} className="item jewelery-item">
-              <img
-                id="pictures-jewelery"
-                src={item.image}
-                alt={item.title}
-                onClick={() => handleProductClick(item.id)}
-              />
-              <h2 id="describtions-jewelery">{item.title}</h2>
-              <p id="prices-jewelery">${item.price}</p>
-              <button
-                className="addToBasket"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  addToCart(item);
-                }}
-              >
-                <img id="cart" src={cart} alt="Add to basket" />
-              </button>
-              <p className="small-rating">
-                {rating.averageRating.toFixed(1)} ★ ({rating.ratingCount}{" "}
-                reviews)
-              </p>
-            </div>
-          );
-        })}
+        {filteredItems.map((item) => (
+          <div key={item.id} className="item jewelery-item">
+            <img
+              id="pictures-jewelery"
+              src={item.image}
+              alt={item.title}
+              onClick={() => handleProductClick(item.id)}
+            />
+            <h2 id="describtions-jewelery">{item.title}</h2>
+            <p id="prices-jewelery">${item.price}</p>
+            <button
+              className="addToBasket"
+              onClick={(e) => {
+                e.stopPropagation();
+                addToCart(item);
+              }}
+            >
+              <img id="cart" src={cart} alt="Add to basket" />
+            </button>
+            <p className="small-rating">
+              {(productRatings[item.id]?.averageRating || 0).toFixed(1)} ★ (
+              {productRatings[item.id]?.ratingCount || 0} reviews)
+            </p>
+          </div>
+        ))}
       </div>
     </div>
   );
-}
+};
+
+const Jewelery = () => {
+  return (
+    <FilterProvider>
+      <div className="jewelery">
+        <Navbar />
+        <h1 id="jewelery">Jewelery</h1>
+        <div className="content">
+          <Filter />
+          <JeweleryContent />
+        </div>
+      </div>
+    </FilterProvider>
+  );
+};
+
+export default Jewelery;
