@@ -21,6 +21,16 @@ function StarRating({ productId, totalStars = 5 }) {
   const starRefs = useRef([]);
 
   useEffect(() => {
+    const savedRatings = localStorage.getItem(`ratings_${productId}`);
+    const savedProductReviews = localStorage.getItem(`reviews_${productId}`);
+
+    setRatings(savedRatings ? JSON.parse(savedRatings) : []);
+    setSavedReviews(savedProductReviews ? JSON.parse(savedProductReviews) : []);
+    setSelectedStars(0);
+    setReview("");
+  }, [productId]);
+
+  useEffect(() => {
     localStorage.setItem(`ratings_${productId}`, JSON.stringify(ratings));
   }, [ratings, productId]);
 

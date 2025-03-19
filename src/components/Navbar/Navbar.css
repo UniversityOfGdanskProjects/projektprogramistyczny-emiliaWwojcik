@@ -195,3 +195,14 @@
 .rating {
   color: #ffa41c;
 }
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.username {
+  color: #333;
+  margin-right: 20px;
+}

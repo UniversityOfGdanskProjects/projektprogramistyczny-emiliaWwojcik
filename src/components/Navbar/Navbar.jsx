@@ -12,6 +12,7 @@ export default function Navbar() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [products, setProducts] = useState([]);
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
   const [filters, setFilters] = useState({
     minPrice: "",
     maxPrice: "",
@@ -59,6 +60,27 @@ export default function Navbar() {
       window.removeEventListener("cart-update", updateCartCount);
     };
   }, []);
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("currentUser"));
+    setCurrentUser(user);
+  }, []);
+
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === "currentUser") {
+        setCurrentUser(JSON.parse(e.newValue));
+      }
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
+  const handleLogout = (e) => {
+    e.preventDefault();
+    localStorage.removeItem("currentUser");
+    setCurrentUser(null);
+  };
 
   const handleSearch = (e) => {
     const query = e.target.value.toLowerCase();
@@ -121,7 +143,7 @@ export default function Navbar() {
     navigate(`/product/${product.id}`);
   };
 
-  const categories = [...new Set(products.map((product) => product.category))];
+  const categories = ["jewelery", "women's clothing"];
 
   return (
     <div className="Navbar">
@@ -135,7 +157,13 @@ export default function Navbar() {
           </li>
           <li>
             <div className="right">
-              <Link to="/SignIn">Sign In / Register</Link>
+              {currentUser ? (
+                <Link to="/SignIn" onClick={handleLogout}>
+                  {currentUser.name} (log out)
+                </Link>
+              ) : (
+                <Link to="/SignIn">Sign In / Register</Link>
+              )}
               <Link to="/Cart">Shopping bag({cartItemCount})</Link>
             </div>
           </li>
